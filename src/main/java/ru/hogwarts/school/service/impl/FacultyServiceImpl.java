@@ -3,18 +3,20 @@ package ru.hogwarts.school.service.impl;
 import org.springframework.stereotype.Service;
 import ru.hogwarts.school.exception.EntityNotFoundException;
 import ru.hogwarts.school.model.Faculty;
+import ru.hogwarts.school.repositories.FacultyRepository;
 import ru.hogwarts.school.service.FacultyService;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 public class FacultyServiceImpl implements FacultyService {
 
-    private final Map<Long, Faculty> faculties = new HashMap<>();
-    private static Long idCounter = 1L;
+    private final FacultyRepository faculties;
+
+    public FacultyServiceImpl(FacultyRepository faculties) {
+        this.faculties = faculties;
+    }
 
     @Override
     public Faculty add(Faculty faculty) {
