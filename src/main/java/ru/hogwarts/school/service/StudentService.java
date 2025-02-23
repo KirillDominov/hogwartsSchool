@@ -1,20 +1,68 @@
 package ru.hogwarts.school.service;
 
+import org.springframework.stereotype.Service;
+import ru.hogwarts.school.exception.EntityNotFoundException;
 import ru.hogwarts.school.model.Student;
+import ru.hogwarts.school.repositories.StudentRepository;
 
-import java.util.Collection;
+import java.util.List;
 
-public interface StudentService {
+@Service
+public class StudentService {
 
-    Student add(Student student);
+    private final StudentRepository students;
+    private final FacultyService faculties;
 
-    Student remove(Long id);
+    public StudentService(StudentRepository students, FacultyService faculties) {
+        this.students = students;
+        this.faculties = faculties;
+    }
 
-    Student update(Student student);
+    public Student addStudent(Student student) {
+        reSetFaculty(student);
+        return students.save(student);
+    }
 
-    Student get(Long id);
+    private void reSetFaculty(Student student) {
+        student.setFaculty(faculties.getFaculty(student.getFaculty().getId()));
+    }
 
-    Collection<Student> getAll();
+    public Student getStudent(long id) {
+        checkExistsId(id);
+        return students.findById(id).orElseThrow();
+    }
 
-    Collection<Student> getByAge(Integer age);
+    public Student updateStudent(Student student) {
+        checkExistsId(student.getId());
+        reSetFaculty(student);
+        return students.save(student);
+    }
+
+    public Student deleteStudent(long id) {
+        Student student = getStudent(id);
+        students.delete(student);
+        return student;
+    }
+
+    private void checkExistsId(long id) {
+        if (!students.existsById(id)) {
+            throw new EntityNotFoundException("Студент с таким " + id + " не найден");
+        }
+    }
+
+    public List<Student> getAllStudents() {
+        return students.findAll();
+    }
+
+    public List<Student> findStudentsByAge(int age) {
+        return students.findByAge(age);
+    }
+
+    public List<Student> findStudentsByAge(int min, int max) {
+        return students.findByAgeBetween(min, max);
+    }
+
+    public List<Student> findStudentsByFacultyId(Long facultyId) {
+        return students.findStudentsByFacultyId(facultyId);
+    }
 }
