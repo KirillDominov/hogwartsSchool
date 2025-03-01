@@ -1,7 +1,5 @@
 package ru.hogwarts.school.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.hogwarts.school.model.Faculty;
@@ -10,8 +8,7 @@ import ru.hogwarts.school.service.FacultyService;
 import java.util.Collection;
 
 @RestController
-@RequestMapping("faculty")
-@Tag(name = "API для работы с факультетами")
+@RequestMapping("/faculty")
 public class FacultyController {
 
     private final FacultyService facultyService;
@@ -20,47 +17,40 @@ public class FacultyController {
         this.facultyService = facultyService;
     }
 
-    @GetMapping("{id}")
-    @Operation(summary = "Получение студента по id")
-    public ResponseEntity<Faculty> get(@PathVariable Long id) {
+    @PostMapping
+    public Faculty addFaculty(@RequestBody Faculty faculty) {
+        return facultyService.addFaculty(faculty);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<Collection<Faculty>> getAllFaculties() {
+        return ResponseEntity.ok(facultyService.getAllFaculties());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Faculty> getFaculty(@PathVariable Long id) {
         Faculty faculty = facultyService.getFaculty(id);
+
         return ResponseEntity.ok(faculty);
     }
 
-    @PostMapping()
-    @Operation(summary = "Создание факультета")
-    public ResponseEntity<Faculty> create(@RequestBody Faculty facultyR) {
-        Faculty faculty = facultyService.addFaculty(facultyR);
-        return ResponseEntity.ok(faculty);
+    @PutMapping("/{id}")
+    public ResponseEntity<Faculty> updateFaculty(@PathVariable Long id, @RequestBody Faculty faculty) {
+        faculty.setId(id);
+
+        return ResponseEntity.ok(facultyService.updateFaculty(faculty));
     }
 
-    @PutMapping()
-    @Operation(summary = "Обновление факультета")
-    public ResponseEntity<Faculty> update(@RequestBody Faculty facultyR) {
-        Faculty faculty = facultyService.updateFaculty(facultyR);
-        return ResponseEntity.ok(faculty);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Faculty> deleteFaculty(@PathVariable Long id) {
+        return ResponseEntity.ok(facultyService.deleteFaculty(id));
     }
 
-    @DeleteMapping("{id}")
-    @Operation(summary = "Удаление факультета")
-    public ResponseEntity<Faculty> remove(@PathVariable Long id) {
-        Faculty faculty = facultyService.deleteFaculty(id);
-        return ResponseEntity.ok(faculty);
+    @GetMapping("/find/color/{color}")
+    public ResponseEntity<Collection<Faculty>> findFacultiesByColor(@PathVariable String color) {
+        return ResponseEntity.ok(facultyService.findFacultiesByColor(color));
     }
 
-    @GetMapping("all")
-    @Operation(summary = "Получение всех факультетов")
-    public ResponseEntity<Collection<Faculty>> getAll() {
-        Collection<Faculty> faculties = facultyService.getAllFaculties();
-        return ResponseEntity.ok(faculties);
-    }
-
-    @GetMapping("color")
-    @Operation(summary = "Факультеты одного цвета")
-    public ResponseEntity<Collection<Faculty>> getByColor(@RequestBody String color) {
-        Collection<Faculty> faculties = facultyService.findFacultiesByColor(color);
-        return ResponseEntity.ok(faculties);
-    }
     @GetMapping("/find/name/{name}")
     public ResponseEntity<Collection<Faculty>> findFacultiesByName(@PathVariable String name) {
         return ResponseEntity.ok(facultyService.findFacultiesByName(name));
@@ -70,5 +60,4 @@ public class FacultyController {
     public ResponseEntity<Collection<Faculty>> findFacultyByStudentId(@PathVariable Long id) {
         return ResponseEntity.ok(facultyService.findFacultyByStudentId(id));
     }
-
 }

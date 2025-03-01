@@ -1,8 +1,7 @@
 package ru.hogwarts.school.service;
 
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
-import ru.hogwarts.school.exception.EntityNotFoundException;
+import ru.hogwarts.school.exception.NotFoundException;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.repositories.FacultyRepository;
 
@@ -28,7 +27,7 @@ public class FacultyService {
         return faculties.findById(id).get();
     }
 
-    public Faculty updateFaculty(@NotNull @NotNull Faculty faculty) {
+    public Faculty updateFaculty(Faculty faculty) {
         checkExistsId(faculty.getId());
         return faculties.save(faculty);
     }
@@ -41,7 +40,7 @@ public class FacultyService {
 
     private void checkExistsId(long id) {
         if (!faculties.existsById(id)) {
-            throw new EntityNotFoundException(String.format("Факультет не найден", id));
+            throw new NotFoundException(String.format("Faculty with id %d not found", id));
         }
     }
 

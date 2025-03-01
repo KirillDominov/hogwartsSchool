@@ -74,5 +74,4 @@ public class Faculty {
                 ", studentsCnt=" + students.size() +
                 '}';
     }
-
 }

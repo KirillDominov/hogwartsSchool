@@ -1,7 +1,7 @@
 package ru.hogwarts.school.service;
 
 import org.springframework.stereotype.Service;
-import ru.hogwarts.school.exception.EntityNotFoundException;
+import ru.hogwarts.school.exception.NotFoundException;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repositories.StudentRepository;
 
@@ -46,7 +46,7 @@ public class StudentService {
 
     private void checkExistsId(long id) {
         if (!students.existsById(id)) {
-            throw new EntityNotFoundException("Студент с таким " + id + " не найден");
+            throw new NotFoundException("Student with id " + id + " not found");
         }
     }
 
