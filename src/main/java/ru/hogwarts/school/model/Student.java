@@ -30,5 +30,4 @@ public class Student {
     @ManyToOne(targetEntity = Faculty.class)
     @JoinColumn(name = "faculty_id", nullable = false)
     private Faculty faculty;
-
 }
