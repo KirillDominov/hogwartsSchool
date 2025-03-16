@@ -19,6 +19,7 @@ public class StudentService {
     }
 
     public Student addStudent(Student student) {
+        student.setId(null);
         reSetFaculty(student);
         return students.save(student);
     }
@@ -64,5 +65,17 @@ public class StudentService {
 
     public List<Student> findStudentsByFacultyId(Long facultyId) {
         return students.findStudentsByFacultyId(facultyId);
+    }
+
+    public Integer getCountOfStudents() {
+        return students.getCountOfStudents();
+    }
+
+    public Integer getAvgAgeOfStudents() {
+        return students.getAvgAgeOfStudents();
+    }
+
+    public List<Student> getLastFiveStudents() {
+        return students.getLastFiveStudents();
     }
 }
