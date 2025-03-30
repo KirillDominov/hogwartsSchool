@@ -1,6 +1,5 @@
 package ru.hogwarts.school.TestRestTemplate;
 
-
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -14,6 +13,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import ru.hogwarts.school.controller.StudentController;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.StudentService;
@@ -23,21 +23,16 @@ import java.util.List;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class StudentControllerTest {
+    final private static long TEST_STUDENT_ID = 1000000L, TEST_STUDENT_ID_FAIL = 99999999L;
+    private static Student studentTest, studentTestFail;
     @LocalServerPort
     private int port;
-
     @Autowired
     private TestRestTemplate restTemplate;
-
     @Autowired
     private StudentService studentService;
-
     @Autowired
     private StudentController studentController;
-
-    final private static long TEST_STUDENT_ID = 1000000L, TEST_STUDENT_ID_FAIL = 99999999L;
-
-    private static Student studentTest, studentTestFail;
 
     @BeforeAll
     public void setup() throws Exception {
@@ -154,7 +149,8 @@ public class StudentControllerTest {
         ResponseEntity<List<Student>> studentsByAge = restTemplate.exchange("http://localhost:" + port + "/student/find/age?age=" + studentTest.getAge(),
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<List<Student>>(){});
+                new ParameterizedTypeReference<List<Student>>() {
+                });
 
         Assertions.assertThat(studentsByAge.getStatusCode()).isEqualTo(HttpStatus.OK);
         Assertions.assertThat(studentsByAge.getBody()).isNotEmpty();

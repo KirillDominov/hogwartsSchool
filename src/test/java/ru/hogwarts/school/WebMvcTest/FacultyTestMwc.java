@@ -1,6 +1,5 @@
 package ru.hogwarts.school.WebMvcTest;
 
-
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,21 +25,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = {FacultyController.class, FacultyService.class})
 public class FacultyTestMwc {
 
+    final private static long TEST_ID = 10000000000L, TEST_ID_FAIL = 99999999999L;
+    private static Faculty faculty1, faculty2, facultyFail;
     @Autowired
     private MockMvc mockMvc;
-
     @MockitoBean
     private FacultyRepository facultyRepository;
-
     @MockitoSpyBean
     private FacultyService facultyService;
-
     @InjectMocks
     private FacultyController facultyController;
-
-    private static Faculty faculty1, faculty2, facultyFail;
-
-    final private static long TEST_ID = 10000000000L, TEST_ID_FAIL = 99999999999L;
 
     @BeforeAll
     static void init() {
