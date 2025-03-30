@@ -1,18 +1,15 @@
 package ru.hogwarts.school.controller;
 
-
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.StudentService;
 
 import java.util.Collection;
 
 @RestController
-@RequestMapping("student")
-@Tag(name = "API для работы со студентами")
+@RequestMapping("/student")
 public class StudentController {
 
     private final StudentService studentService;
@@ -21,45 +18,67 @@ public class StudentController {
         this.studentService = studentService;
     }
 
-    @GetMapping("{id}")
-    @Operation(summary = "Получение студента по id")
-    public ResponseEntity<Student> get(@PathVariable Long id) {
-        Student student = studentService.get(id);
-        return ResponseEntity.ok(student);
+    @PostMapping
+    public Student addStudent(@RequestBody Student student) {
+        return studentService.addStudent(student);
     }
 
-    @PostMapping()
-    @Operation(summary = "Создание студента")
-    public ResponseEntity<Student> create(@RequestBody Student studentR) {
-        Student student = studentService.add(studentR);
-        return ResponseEntity.ok(student);
+    @GetMapping("/all")
+    public Collection<Student> getAllStudents() {
+        return studentService.getAllStudents();
     }
 
-    @PutMapping()
-    @Operation(summary = "Обновление студента")
-    public ResponseEntity<Student> update(@RequestBody Student studentR) {
-        Student student = studentService.update(studentR);
-        return ResponseEntity.ok(student);
+    @GetMapping("/{id}")
+    public Student getStudent(@PathVariable Long id) {
+        return studentService.getStudent(id);
     }
 
-    @DeleteMapping("{id}")
-    @Operation(summary = "Удаление студента")
-    public ResponseEntity<Student> remove(@PathVariable Long id) {
-        Student student = studentService.remove(id);
-        return ResponseEntity.ok(student);
+    @GetMapping("/{id}/faculty")
+    public Faculty getFaculty(@PathVariable Long id) {
+        return studentService.getStudent(id).getFaculty();
     }
 
-    @GetMapping("all")
-    @Operation(summary = "Получение всех студентов")
-    public ResponseEntity<Collection<Student>> getAll() {
-        Collection<Student> students = studentService.getAll();
-        return ResponseEntity.ok(students);
+    @PutMapping("/{id}")
+    public Student updateStudent(@PathVariable Long id, @RequestBody Student student) {
+        student.setId(id);
+        return studentService.updateStudent(student);
     }
 
-    @GetMapping()
-    @Operation(summary = "Студенты одного возраста")
-    public ResponseEntity<Collection<Student>> getByAge(@RequestBody Integer age) {
-        Collection<Student> students = studentService.getByAge(age);
-        return ResponseEntity.ok(students);
+    @DeleteMapping("/{id}")
+    public Student deleteStudent(@PathVariable Long id) {
+        return studentService.deleteStudent(id);
+    }
+
+    @GetMapping("/find/age")
+    public ResponseEntity<Collection<Student>> findStudentsByAge(@RequestParam(required = false) Integer age,
+                                                                 @RequestParam(required = false) Integer min,
+                                                                 @RequestParam(required = false) Integer max) {
+        if (age != null) {
+            return ResponseEntity.ok(studentService.findStudentsByAge(age));
+        } else if (min != null && max != null) {
+            return ResponseEntity.ok(studentService.findStudentsByAge(min, max));
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/find/faculty/{id}")
+    public Collection<Student> findStudentsByFacultyId(@PathVariable Long id) {
+        return studentService.findStudentsByFacultyId(id);
+    }
+
+    @GetMapping("/get/count")
+    public Integer getCountOfStudents() {
+        return studentService.getCountOfStudents();
+    }
+
+    @GetMapping("/get/avg-age")
+    public Integer getAvgAgeOfStudents() {
+        return studentService.getAvgAgeOfStudents();
+    }
+
+    @GetMapping("/get/last-five")
+    public Collection<Student> getLastFiveStudents() {
+        return studentService.getLastFiveStudents();
     }
 }
