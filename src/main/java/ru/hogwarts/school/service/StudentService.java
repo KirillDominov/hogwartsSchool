@@ -1,20 +1,120 @@
 package ru.hogwarts.school.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import ru.hogwarts.school.exception.NotFoundException;
 import ru.hogwarts.school.model.Student;
+import ru.hogwarts.school.repositories.StudentRepository;
 
-import java.util.Collection;
+import java.util.List;
 
-public interface StudentService {
+@Service
+public class StudentService {
 
-    Student add(Student student);
+    private final StudentRepository students;
+    private final FacultyService faculties;
 
-    Student remove(Long id);
+    Logger logger = LoggerFactory.getLogger(StudentService.class);
 
-    Student update(Student student);
+    public StudentService(StudentRepository students, FacultyService faculties) {
+        this.students = students;
+        this.faculties = faculties;
+    }
 
-    Student get(Long id);
+    public Student addStudent(Student student) {
+        logger.info("addStudent: add student");
 
-    Collection<Student> getAll();
+        student.setId(null);
+        reSetFaculty(student);
+        return students.save(student);
+    }
 
-    Collection<Student> getByAge(Integer age);
+    private void reSetFaculty(Student student) {
+        logger.info("reSetFaculty: reset faculty for student");
+
+        student.setFaculty(faculties.getFaculty(student.getFaculty().getId()));
+    }
+
+    public Student getStudent(long id) {
+        logger.info("getStudent: id {}", id);
+
+        checkExistsId(id);
+        return students.findById(id).orElseThrow();
+    }
+
+    public Student updateStudent(Student student) {
+        logger.info("updateStudent: update student");
+
+        checkExistsId(student.getId());
+        reSetFaculty(student);
+        return students.save(student);
+    }
+
+    public Student deleteStudent(long id) {
+        logger.info("deleteStudent: delete student, id {}", id);
+
+        Student student = getStudent(id);
+        students.delete(student);
+        return student;
+    }
+
+    private void checkExistsId(long id) {
+        if (!students.existsById(id)) {
+            logger.error("Student with id {} not found", id);
+
+            throw new NotFoundException("Student with id " + id + " not found");
+        }
+    }
+
+    public List<Student> getAllStudents() {
+        return students.findAll();
+    }
+
+    public List<Student> findStudentsByAge(int age) {
+        return students.findByAge(age);
+    }
+
+    public List<Student> findStudentsByAge(int min, int max) {
+        return students.findByAgeBetween(min, max);
+    }
+
+    public List<Student> findStudentsByFacultyId(Long facultyId) {
+        return students.findStudentsByFacultyId(facultyId);
+    }
+
+    public Integer getCountOfStudents() {
+        return students.getCountOfStudents();
+    }
+
+    public Integer getAvgAgeOfStudents() {
+        return students.getAvgAgeOfStudents();
+    }
+
+    public List<Student> getLastFiveStudents() {
+        return students.getLastFiveStudents();
+    }
+    public List<String> getStudentsNamesStartedWith(String letter) {
+        logger.info("getStudentsNamesStartedWith: letter {}", letter);
+
+        final String lambdaLetter = (letter == null ? "" : letter.toUpperCase().trim());
+
+        List<Student> all = students.findAll();
+
+        return all.parallelStream()
+                .map(s -> s.getName().toUpperCase())
+                .filter(s -> s.startsWith(lambdaLetter))
+                .sorted()
+                .toList();
+    }
+
+    public int getStudentsAvgAge() {
+        logger.info("getStudentsAvgAge: get avg age of students");
+
+        List<Student> all = students.findAll();
+
+        return (int)all.parallelStream()
+                .mapToInt(Student::getAge)
+                .summaryStatistics().getAverage();
+    }
 }
