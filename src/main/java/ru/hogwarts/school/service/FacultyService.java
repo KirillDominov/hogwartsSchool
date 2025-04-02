@@ -1,20 +1,85 @@
 package ru.hogwarts.school.service;
 
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import ru.hogwarts.school.exception.NotFoundException;
 import ru.hogwarts.school.model.Faculty;
+import ru.hogwarts.school.repositories.FacultyRepository;
 
-import java.util.Collection;
+import java.util.List;
 
-public interface FacultyService {
+@Service
+public class FacultyService {
 
-    Faculty add(Faculty Faculty);
+    private final FacultyRepository faculties;
 
-    Faculty remove(Long Id);
+    Logger logger = LoggerFactory.getLogger(FacultyService.class);
 
-    Faculty update(Faculty Faculty);
 
-    Faculty get(Long id);
+    public FacultyService(FacultyRepository faculties) {
+        this.faculties = faculties;
+    }
 
-    Collection<Faculty> getAll();
+    public Faculty addFaculty(Faculty faculty) {
+        logger.info("addFaculty: Faculty add");
 
-    Collection<Faculty> getByColor(String color);
+        faculty.setId(null);
+        return faculties.save(faculty);
+    }
+
+    public Faculty getFaculty(long id) {
+        logger.info("getFaculty: Faculty get");
+
+        checkExistsId(id);
+        return faculties.findById(id).get();
+    }
+
+    public Faculty updateFaculty(Faculty faculty) {
+        logger.info("updateFaculty: Faculty update");
+
+        checkExistsId(faculty.getId());
+        return faculties.save(faculty);
+    }
+
+    public Faculty deleteFaculty(long id) {
+        logger.info("deleteFaculty: Faculty delete");
+
+        Faculty faculty = getFaculty(id);
+        faculties.delete(faculty);
+        return faculty;
+    }
+
+    private void checkExistsId(long id) {
+        if (!faculties.existsById(id)) {
+            logger.error("checkExistsId: Faculty not found {}", id);
+
+            throw new NotFoundException(String.format("Faculty with id %d not found", id));
+        }
+    }
+
+    public List<Faculty> getAllFaculties() {
+        return faculties.findAll();
+    }
+
+    public List<Faculty> findFacultiesByColor(String color) {
+        return faculties.findByColorIgnoreCase(color);
+    }
+
+    public List<Faculty> findFacultiesByName(String name) {
+        return faculties.findByNameIgnoreCase(name);
+    }
+
+    public List<Faculty> findFacultyByStudentId(Long id) {
+        return faculties.findFacultyByStudentsId(id);
+    }
+    public String getLongestFacultyName() {
+        logger.info("getLongestFacultyName: get longest name of Faculties");
+
+        return faculties.findAll().stream()
+                .map(Faculty::getName)
+                .max(String::compareTo)
+                .orElse("");
+    }
 }
