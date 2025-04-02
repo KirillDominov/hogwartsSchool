@@ -1,5 +1,6 @@
 package ru.hogwarts.school.service;
 
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -16,10 +17,10 @@ public class FacultyService {
 
     Logger logger = LoggerFactory.getLogger(FacultyService.class);
 
+
     public FacultyService(FacultyRepository faculties) {
         this.faculties = faculties;
     }
-
 
     public Faculty addFaculty(Faculty faculty) {
         logger.info("addFaculty: Faculty add");
@@ -72,5 +73,13 @@ public class FacultyService {
 
     public List<Faculty> findFacultyByStudentId(Long id) {
         return faculties.findFacultyByStudentsId(id);
+    }
+    public String getLongestFacultyName() {
+        logger.info("getLongestFacultyName: get longest name of Faculties");
+
+        return faculties.findAll().stream()
+                .map(Faculty::getName)
+                .max(String::compareTo)
+                .orElse("");
     }
 }
